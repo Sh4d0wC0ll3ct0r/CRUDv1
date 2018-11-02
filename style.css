@@ -1,0 +1,20 @@
+.general{
+    background-color:black;
+    padding: 200px;
+}
+
+.formularioPers{
+    border: 2px solid black;
+    padding: 30px;
+    background-color:bisque;
+}
+
+.listadoPers{
+    border: 2px solid black;
+    padding: 30px;
+    background:bisque;
+}
+
+table thead tr th {
+    width: 200px;
+}
