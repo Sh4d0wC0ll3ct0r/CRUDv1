@@ -6,35 +6,44 @@ window.addEventListener('DOMContentLoaded',function(){
     var list = document.getElementById('tbListPers');
     var btnAdd  = document.getElementById('btnAdd');
 
-    var id = 1;
     var todoList = [];
     var ListItem = "";
+    var i=0;
     btnAdd.addEventListener("click", addItem);
-    displayList();
-    function addItem(){
-       // console.log('hola mundo2',inputNombre.value);
-        var item = "<tr id='li-"+id+"'><td>" + inputNombre.value + "</td>" +
-            "<td>" + inputApellidos.value +  "</td>" +
-            "<td>" + inputEdad.value +  "</td></tr>";
 
-        list.insertAdjacentHTML('beforeend',item);
-        ListItem = { nombres: inputNombre.value,apellidos: inputApellidos.value,edad: inputEdad.value };
-        todoList.push(ListItem);
-        id++;
+    //btnRemove.addEventListener("click", removeItem);
+    if (localStorage.length > 0) {
+        displayList();
+    }
+
+    function addItem(){
+
+       /* var item = "<tr id='li-"+i+"'><td>" + inputNombre.value + "</td>" +
+            "<td>" + inputApellidos.value +  "</td>" +
+            "<td>" + inputEdad.value +  "</td>" +
+            "<td> <button type='button' data-id="+i+ " id='li-"+i+"' name='btnRemove' class='btn btn-default btn-xs btnRemove'>" +
+            "<span class='glyphicon glyphicon-remove'></span>" +
+            "</button></td></tr>";
+        list.insertAdjacentHTML('beforeend',item);*/
+        todoList.push({ nombres: inputNombre.value,apellidos: inputApellidos.value,edad: inputEdad.value });
         addToLocalStorage();
+        limpiarTabla();
+        displayList();
         form.reset();
     }
-    function displayList(){
+
+    function removeItem(){
+        var dataId = this.getAttribute("data-id");
+
+        todoList = [];
         todoList = JSON.parse(localStorage.getItem("todoList"));
-        todoList.forEach(function (e) {
-            console.log(e);
-            var item = "<tr id='li-"+id+"'><td>" + e.nombres + "</td>" +
-                "<td>" + e.apellidos +  "</td>" +
-                "<td>" + e.edad +  "</td></tr>";
-            list.insertAdjacentHTML('beforeend',item);
-            id++;
-        })
+        todoList.splice(dataId, 1);
+        localStorage.setItem("todoList", JSON.stringify(todoList));
+        limpiarTabla();
+        displayList();
     }
+
+
     function addToLocalStorage() {
         if (typeof(Storage) !== "undefined") {
             localStorage.setItem("todoList", JSON.stringify(todoList));
@@ -43,5 +52,32 @@ window.addEventListener('DOMContentLoaded',function(){
             alert("browser doesn't support local storage!");
         }
     }
+    function displayList(){
+        todoList = JSON.parse(localStorage.getItem("todoList"));
 
-},false);
+        for (var i = 0; i < todoList.length; i++) {
+
+            var item = "<tr id='li-"+i+"'><td>" + todoList[i].nombres + "</td>" +
+                "<td>" + todoList[i].apellidos +  "</td>" +
+                "<td>" + todoList[i].edad +  "</td>" +
+                "<td> <button type='button' data-id="+i+ " id='li-"+i+"' name='btnRemove' class='btn btn-danger btn-xs btnRemove'>" +
+                "<span class='glyphicon glyphicon-trash'></span>" +
+                "</button></td></tr>";
+            list.insertAdjacentHTML('beforeend',item);
+
+        }
+        var btnRemove  = document.getElementsByClassName('btnRemove');
+        for (var i = 0; i < btnRemove.length; i++) {
+            btnRemove[i].addEventListener('click',removeItem,false);
+        }
+    }
+
+    function limpiarTabla(){
+        var tbListPers = document.getElementById("tbListPers");
+        // alert(tbListPers);
+        while (tbListPers.firstChild) {
+            //alert(tbListPers.firstChild);
+            tbListPers.removeChild(tbListPers.firstChild);
+        }
+    }
+});
