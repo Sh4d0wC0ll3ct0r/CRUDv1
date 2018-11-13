@@ -10,13 +10,35 @@ window.addEventListener('DOMContentLoaded',function(){
     var todoList = [];
     var ListItem = "";
     var i=0;
-    btnAdd.addEventListener("click", addItem);
+    eventos();
 
     //btnRemove.addEventListener("click", removeItem);
     if (localStorage.length > 0) {
         displayList();
     }
+    function eventos(){
 
+        document.addEventListener('click',function(e){
+            // Fixed
+
+            if(e.target.tagName.toLowerCase() === 'button'){
+
+                        if(e.target.id  === 'btnAdd'){
+                            console.log(e.target.id);
+                            addItem();
+                        }
+                        if(e.target.name === 'btnEdit'){
+                            editItem(e.target.id);
+                        }
+                        if(e.target.name === 'update'){
+                            guardarItem(e.target.id);
+                        }
+                        if(e.target.name === 'btnRemove'){
+                            removeItem(e.target.id);
+                        }
+            }
+        })
+    }
     function addItem(){
         todoList.push({ nombres: inputNombre.value,apellidos: inputApellidos.value,edad: inputEdad.value });
         addToLocalStorage();
@@ -25,32 +47,21 @@ window.addEventListener('DOMContentLoaded',function(){
         form.reset();
     }
 
-    function removeItem(){
-        var dataId = this.getAttribute("data-id");
-        removeToLocalStorage(dataId);
+    function removeItem(id){
+        removeToLocalStorage(id);
         limpiarTabla();
         displayList();
     }
-    function editItem(){
-
-        var dataId = this.getAttribute("data-id");
+    function editItem(dataId){
+        console.log(dataId);
         getToLocalStorage();
         inputNombre.value =    todoList[dataId].nombres;
         inputApellidos.value = todoList[dataId].apellidos;
         inputEdad.value = todoList[dataId].edad;
-        btnAdd.removeEventListener('click',addItem);
-        btnAdd.innerHTML = "Guardar";
-        btnAdd.setAttribute("id","btnGuardar");
-        TituloEditar.innerHTML = "Editar Personas";
-        var btnGuardar  = document.getElementById('btnGuardar');
-
-        todoList = [];
-        //todoList.push({ nombres: inputNombre.value,apellidos: inputApellidos.value,edad: inputEdad.value });
-
-        btnGuardar.addEventListener('click',function(){
-            guardarItem(dataId);
-        } ,false);
-
+        document.getElementById("btnAdd").setAttribute("id",dataId);
+        document.getElementById(dataId).setAttribute("name","update");
+        document.getElementById(dataId).innerText = "Guardar";
+        document.getElementById("TituloEditar").innerText = "Editar Persona";
     }
     function getToLocalStorage() {
 
@@ -76,15 +87,8 @@ window.addEventListener('DOMContentLoaded',function(){
         if (typeof(Storage) !== "undefined") {
             todoList = [];
             todoList = JSON.parse(localStorage.getItem("todoList"));
-            //todoList[dataId] = todoListCopia;
-
             todoList.splice(dataId, 1,todoListCopia[0]);
             localStorage.setItem("todoList", JSON.stringify(todoList));
-           // todoList.map(function(dato){ console.log(dato.nombres , todoListCopia[0].nombres );});
-           // localStorage.setItem("todoList", JSON.stringify(todoList));
-           /* if (dato === todoList ){
-months.splice(4, 1, 'May');
-            }*/
         }
         else {
             alert("browser doesn't support local storage!");
@@ -106,36 +110,33 @@ months.splice(4, 1, 'May');
 
     function guardarItem(dataId)
     {
+        todoList = [];
         todoList.push({ nombres: inputNombre.value,apellidos: inputApellidos.value,edad: inputEdad.value });
-        console.log(dataId);
-        console.log(todoList);
-
         editToLocalStorage(dataId);
+        document.getElementsByName("update")[0].id = "btnAdd";
+        document.getElementById("btnAdd").innerText = "Agregar";
+        document.getElementById("btnAdd").setAttribute("name","");
+        document.getElementById("TituloEditar").innerText = "Agregar Persona";
         limpiarTabla();
         displayList();
+        form.reset();
+
     }
     function displayList(){
         todoList = JSON.parse(localStorage.getItem("todoList"));
-
+        todoList.innerHTML="";
         for (var i = 0; i < todoList.length; i++) {
 
             var item = "<tr id='li-"+i+"'><td>" + todoList[i].nombres + "</td>" +
                 "<td>" + todoList[i].apellidos +  "</td>" +
                 "<td>" + todoList[i].edad +  "</td>" +
-                "<td> <button type='button' data-id="+i+ " id='li-"+i+"' name='btnRemove' class='btn btn-danger btn-xs btnRemove'>" +
-                "<span class='glyphicon glyphicon-trash'></span>" +
-                "</button> <button type='button' data-id="+i+ " id='li-"+i+"' name='btnEdit' class='btn btn-danger btn-xs btnEdit'>" +
-                "<span class='glyphicon glyphicon-edit'></span>" +
+                "<td> <button type='button'  id="+i+" name='btnRemove' class='btn btn-danger glyphicon glyphicon-trash btnRemove'>" +
+                "</button> <button type='button' data-id="+i+ " id="+i+" name='btnEdit' class='btn btn-primary glyphicon glyphicon-edit btnEdit'>" +
                 "</button></td></tr>";
             list.insertAdjacentHTML('beforeend',item);
 
         }
-        var btnRemove = document.getElementsByClassName('btnRemove');
-        var btnEdit =   document.getElementsByClassName('btnEdit');
-        for (var i = 0; i < btnRemove.length; i++) {
-            btnRemove[i].addEventListener('click',removeItem,false);
-            btnEdit[i].addEventListener('click',editItem,false);
-        }
+
     }
 
     function limpiarTabla(){
